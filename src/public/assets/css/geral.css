@@ -1,0 +1,25 @@
+.loading-dialog{
+    width: 100%;
+    height: 640px;
+    top: 0px;
+    z-index: 250;
+}
+.loading-dialog img{
+    z-index: 10;
+    position: absolute;
+    right: 45%;
+    top: 45%;
+    line-height: 0px;
+    width: 100px;
+    height: 100px;
+}
+.fieldStyle{
+    border: 1px solid #c0ccda;
+    margin: 15px 0px 0px 0px;
+    padding: 10px;
+}
+.fieldStyle1{
+    border: 1px solid #c0ccda;
+    margin: -25px 0px 0px 0px;
+    padding: 10px;
+}
