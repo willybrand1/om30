@@ -21,7 +21,7 @@ class EnderecoFactory extends Factory
             'complemento' => $this->faker->secondaryAddress(),
             'bairro'  => $this->faker->streetName(),
             'cidade' => $this->faker->city(),
-            'estado' => rand(0,99),
+            'estado' => 'DF',
             'paciente_id' => Paciente::class
         ];
     }

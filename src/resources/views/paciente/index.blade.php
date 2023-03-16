@@ -3,6 +3,7 @@
 {{ csrf_field()}}
 <main>
     <div id="ancora"></div>
+    <div id="ancora2"></div>
     <section>
         <div class="container-fluid">
             <div class="container">

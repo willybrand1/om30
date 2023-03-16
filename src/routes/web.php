@@ -21,5 +21,6 @@ Route::get('/', function () {
 Route::prefix('paciente')->group(function () {
     Route::controller(PacienteController::class)->group(function () {
         Route::get('/', 'index');
+        Route::get('/modal', [PacienteController::class, 'showModal'])->name('modal.modalpaciente');
     });
 });

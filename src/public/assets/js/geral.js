@@ -10,7 +10,7 @@ function createModal(obj = {}){
     let modalBody = '';
     let ancora    = 'ancora';
     let tamanho   = '40%';
-    let altura    = '30vw';
+    let altura    = '30vw !important';
     let msg       = '';
     let titulo    = '';
     let id        = 'myModal';
@@ -18,6 +18,7 @@ function createModal(obj = {}){
     let callback  = '';
     let url       = '';
     let reopen    = '';
+    let headstyle = 'background: #031a61;color: #fff;border-radius: 0px;font-size: 1.3rem;font-weight: 500;';
     let entries   = Object.entries(obj);
     
     for(var i=0; i<entries.length; i++){
@@ -51,6 +52,9 @@ function createModal(obj = {}){
         if(entries[i][0] == "reopen"){
             reopen = entries[i][1];
         }
+        if(entries[i][0] == "headcolor"){
+            headstyle = entries[i][1];
+        }
     }
     
     if((ancora == '') || (ancora.length < 1)){
@@ -59,13 +63,13 @@ function createModal(obj = {}){
         $("#" + div).remove();
 
         modalBody += '<div id="' + div + '">';
-        modalBody += '<div class="modal fade" id="' + id + '" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">';
+        modalBody += '<div data-backdrop="static" data-keyboard="false" class="modal fade" id="' + id + '" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">';
         modalBody += '<div style="min-width: ' + tamanho + ';" class="modal-dialog modal-dialog-centered" role="document">';
-        modalBody += '<div class="modal-content">';
-        modalBody += '<div class="modal-header" style="background: #031a61;color: #fff;border-radius: 0px;">';
-        modalBody += '<h5 style="color: #fff;" class="modal-title" id="exampleModalLongTitle">' + titulo + '</h5>';
+        modalBody += '<div class="modal-content" style="height: auto;">';
+        modalBody += '<div class="modal-header" style="' + headstyle + 'border-radius: 0px;">';
+        modalBody += '<span class="modal-title" id="exampleModalLongTitle">' + titulo + '</span>';
         modalBody += '<button type="button" onclick="closeTheModal(\''+id+'\', \''+ancora+'\', \''+reopen+'\', \''+callback+'\', \''+url+'\');" class="close" data-dismiss="modal" aria-label="Close">';
-        modalBody += '<span aria-hidden="true" style="color: #fff;">&times;</span>';
+        modalBody += '<span aria-hidden="true">&times;</span>';
         modalBody += '</button>';
         modalBody += '</div>';
         modalBody += '<div class="modal-body" style="overflow: auto;max-height: ' + altura + ';">';
@@ -96,21 +100,14 @@ function createModal(obj = {}){
                     }
                 })
             }
-
-            if(callback == 'on_hide_reopen'){
-                $('#' + id).on('hidden.bs.modal', function () {
-                    $("#" + reopen).removeClass('hide');
-                    $("#" + reopen).addClass('show');
-                })
-            }
         }
     }
 }
 
-function closeTheModal(id = "", ancora = "", reopen = "", callback = "", url = ""){
+function closeTheModal(id,ancora,reopen,callback,url){
     $("#" + id).modal('hide');
     $("#" + ancora).html("");
-
+    
     if(reopen !== ""){
         $("#" + reopen).removeClass('hide');
         $("#" + reopen).addClass('show');
@@ -130,6 +127,87 @@ function closeTheModal(id = "", ancora = "", reopen = "", callback = "", url = "
             }
         }
     }
+
+    $(".modal-fade").modal("hide");
+    $('body').removeClass('modal-open');
+}
+
+function buscaEndereco(){
+    let cep = $("#cep").val();
+
+    if(cep !== ""){
+        var modal = {
+            id:"modalCep",
+            div:"attachModalBodyCep",
+            ancora:"ancora2"
+        };
+
+        cep = parseInt(cep.toString().replace(/-/, ''), 10);
+        
+        $.ajax({
+            url: 'https://viacep.com.br/ws/' + cep + '/json/',
+            method: 'GET',
+            dataType: 'json'
+        }).done(function(obj){
+            $("#endereco").val('');
+            $("#numero").val('');
+            $("#complemento").val('');
+            $("#bairro").val('');
+            $("#cidade").val('');
+            $("#estado").val('');
+
+            $("#endereco").val(obj.logradouro);
+            $("#complemento").val(obj.complemento);
+            $("#bairro").val(obj.bairro);
+            $("#cidade").val(obj.localidade);
+            $("#estado").val(obj.uf);
+        }).fail(function(xhr){
+            if(xhr.status == 404){
+                modal['msg'] = "Erro [404]: Página não encontrada.";
+            }else if(xhr.status == 500){
+                modal['msg'] = "Erro [500]: Erro ao retornar requisição do servidor.";
+            }
+    
+            modal['titulo'] = "Erro";
+            modal['tamanho'] = "30%";
+            
+            createModal(modal);
+        });
+    }
+}
+
+function incluir(){
+    var modal = {
+        id:"modalIncluir",
+        div:"attachModalBodyIncluir",
+        ancora:"ancora"
+    };
+
+    $.ajax({
+        url: '/paciente/modal',
+        method: 'GET',
+        dataType: 'text',
+        data: {
+            modal:'paciente'
+        }
+    }).done(function(obj){
+        modal['msg'] = obj;
+        modal['titulo'] = "Cadastrar novo Paciente";
+        modal['tamanho'] = "80%";
+
+        createModal(modal);
+    }).fail(function(xhr){
+        if(xhr.status == 404){
+            modal['msg'] = "Erro [404]: Página não encontrada.";
+        }else if(xhr.status == 500){
+            modal['msg'] = "Erro [500]: Erro ao retornar requisição do servidor.";
+        }
+
+        modal['titulo'] = "Erro";
+        modal['tamanho'] = "30%";
+        
+        createModal(modal);
+    });
 }
 
 function pesquisar(){
@@ -145,6 +223,8 @@ function pesquisar(){
         responsive: true,
         deferRender: true,
         searching: true,
+        autoWidth: true,
+        pageLength: 2,
         language: {
             "url": "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Portuguese-Brasil.json"
         },
